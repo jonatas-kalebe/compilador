@@ -84,7 +84,7 @@ public class StatementsParser {
             String[] lines = body.split("\n");
 
             for (String line : lines) {
-                if (line.startsWith("if")) {
+                if (line.trim().startsWith("if")) {
                     String[] split = line.trim().split(" ");
                     comparador = split[2];
                     variavel1 = new Name(split[1], "load");

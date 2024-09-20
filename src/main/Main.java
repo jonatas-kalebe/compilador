@@ -13,41 +13,53 @@ public class Main {
         String code = """
                 class Base
                  vars id
-                 method showid(x, y, rerw)
+                 method showid()
                  vars x
                  begin
-                 self.id = 10
-                 x = self.id
-                 return x
+                   self.id = 10
+                   x = self.id
+                   io.print(x)
+                   x = 0
+                   return x
+                 end-method
+                end-class
+                class Pessoa
+                 vars num
+                 method calc(x)
+                 vars y, z
+                 begin
+                   z = self.num
+                   y = x + z
+                   io.print(y)
+                   y = new Base
+                   return y
+                 end-method
+                 method comparisonTest(x)
+                 vars result
+                 begin
+                   if x gt self.num then
+                     io.print(1)
+                   else
+                     io.print(0)
+                   end-if
+                   return result
                  end-method
                 end-class
                 main()
                 vars p, b, x
                 begin
-                 if a1 eq b2 then
-                  c = 123
-                 end-if
-                 if a2 eq b3 then
-                  c = 124
-                 end-if
-                   if a3 eq b3 then
-                  c = 125
-                 end-if
-                 b = new Base
-                 p = new Pessoa
-                 p._prototype = b
-                 b.id = 111
-                 p.num = 123
-                 p.id = 321
-                 x = 1024
-                 if a eq b then
-                  c = b + a
-                 else
-                  c = 123
-                 end-if
-                 p.showid()
-                 p.calc(x)
-                end""";
+                   b = new Base
+                   p = new Pessoa
+                   p._prototype = b
+                   b.id = 111
+                   p.num = 123
+                   p.id = 321
+                   x = 1024
+                   p.showid()
+                   p.calc(x)
+                   p.comparisonTest(x)
+                end
+                """;
 
 
 
