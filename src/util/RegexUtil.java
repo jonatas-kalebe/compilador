@@ -11,8 +11,9 @@ import java.util.regex.Pattern;
 public class RegexUtil {
     private static final String IDENTIFY_CLASS = "class\\s+\\w+[\\s\\S]+?end-class";
     private static final String IDENTIFY_METHOD = "method\\s+\\w+\\s*\\([^)]*\\)[\\s\\S]+?end-method";
+    private static final String IDENTIFY_IF = "if[\\s\\S]+?end-if";
     private static final String IDENTIFY_METHOD_BODY = "begin[\\s\\S]+?end-method";
-    private static final String IDENTIFY_MAIN = "main\\(\\)[\\s\\S]+?end";
+    private static final String IDENTIFY_MAIN = "main\\(\\)[\\s\\S]+?end$";
     private static final String IDENTIFY_METHOD_PARAMS = "method\\s+\\w+\\s*\\((.*)\\)";
 
     private RegexUtil() {
@@ -32,6 +33,9 @@ public class RegexUtil {
 
     public static String extractMethodBody(String code) {
         return extractMatches(IDENTIFY_METHOD_BODY, code).getFirst();
+    }
+    public static List<String> extractIfs(String code) {
+        return extractMatches(IDENTIFY_IF, code);
     }
 
     private static String findLinesStatingWith(String code, String start) {

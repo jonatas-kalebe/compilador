@@ -53,11 +53,17 @@ public class If implements BodyStatements, MainStatements {
         }else {
             lines= ifBlockCode.toString().split("\n").length;
         }
-
-        if (isElse) {
-            return "else " + lines + "\n" + elseBlockCode;
-        } else {
-            return variavel1.compileCode() + variavel2.compileCode() + Comparator.getComparator(comparador) + "if " + lines + "\n" + ifBlockCode;
+        int linesElse;
+        if(elseBlockCode.isEmpty()){
+            linesElse=0;
+        }else {
+            linesElse= elseBlockCode.toString().split("\n").length;
         }
+        StringBuilder code = new StringBuilder();
+        code.append(variavel1.compileCode() + variavel2.compileCode() + Comparator.getComparator(comparador) + "if " + lines + "\n" + ifBlockCode);
+        if (isElse) {
+            code.append("else " + linesElse + "\n" + elseBlockCode);
+        }
+        return code.append("end-if\n").toString();
     }
 }

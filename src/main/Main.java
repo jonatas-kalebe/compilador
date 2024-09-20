@@ -31,6 +31,11 @@ public class Main {
                  p.num = 123
                  p.id = 321
                  x = 1024
+                 if a eq b then
+                  c = b + a
+                 else
+                  c = 123
+                 end-if
                  p.showid()
                  p.calc(x)
                 end""";

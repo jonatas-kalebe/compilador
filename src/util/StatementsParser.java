@@ -15,18 +15,22 @@ public class StatementsParser {
 
     public static List<MainStatements> processEachLineMainStatement(String body) {
         if (body != null && !body.isEmpty()) {
+            List <String> blocosIf = RegexUtil.extractIfs(body);
+            for (String blocoIf : blocosIf) {
+                body = body.replace(blocoIf, "");
+            }
             String[] lines = body.split("\n");
             List<MainStatements> statements = new ArrayList<>();
             for (String line : lines) {
-                if (line.contains("if")) {
-                    statements.add(processEachLineIfStatement(line));
-                }
-                else if (line.contains("=")) {
+                if (line.contains("=")) {
                     statements.add(processLineAttribution(line));
                 }
                 else if(line.contains("(")&&!line.contains("main")){
                     statements.add(processMethodCall(line));
                 }
+            }
+            for (String blocoIf : blocosIf) {
+                statements.add(processEachLineIfStatement(blocoIf));
             }
             return statements;
         }
@@ -35,21 +39,31 @@ public class StatementsParser {
 
     public static MethodBody processEachLineMethodStatement(String body) {
         if (body != null && !body.isEmpty()) {
+            boolean isIf=false;
             String[] lines = body.split("\n");
             List<BodyStatements> statements = new ArrayList<>();
             for (String line : lines) {
-                if (line.contains("if")) {
-                    statements.add(processEachLineIfStatement(line));
+                if (line.contains("end-if")){
+                    isIf=false;
+                }else {
+                    if(!isIf){
+                        if (line.contains("if")) {
+                            isIf=true;
+                            statements.add(processEachLineIfStatement(line));
+
+                        }
+                        else if (line.contains("return")) {
+                            statements.add(processLineReturn(line));
+                        }
+                        else if (line.contains("=")) {
+                            statements.add(processLineAttribution(line));
+                        }
+                        else if(line.contains("(")){
+                            statements.add(processMethodCall(line));
+                        }
+                    }
                 }
-                else if (line.contains("return")) {
-                    statements.add(processLineReturn(line));
-                }
-                else if (line.contains("=")) {
-                    statements.add(processLineAttribution(line));
-                }
-                else if(line.contains("(")){
-                    statements.add(processMethodCall(line));
-                }
+
             }
             return new MethodBody(statements);
         }
@@ -68,8 +82,8 @@ public class StatementsParser {
             String[] lines = body.split("\n");
 
             for (String line : lines) {
-                if (line.contains("if")) {
-                    String[] split = line.split(" ");
+                if (line.startsWith("if")) {
+                    String[] split = line.trim().split(" ");
                     comparador = split[2];
                     variavel1 = new Name(split[1], "load");
                     variavel2 = new Name(split[3], "load");
@@ -98,6 +112,8 @@ public class StatementsParser {
                     } else {
                         statements.add(processMethodCall(line));
                     }
+                } else if (line.contains("end-if")) {
+                    break;
                 }
             }
         }
