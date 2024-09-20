@@ -84,5 +84,5 @@ public class Main {
         System.out.println(finalCode);
 
     }
-    //todo falta new e falta prototype
+    //todo falta falta prototype e io.print
 }
