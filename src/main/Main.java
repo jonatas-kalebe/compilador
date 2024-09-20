@@ -24,6 +24,15 @@ public class Main {
                 main()
                 vars p, b, x
                 begin
+                 if a1 eq b2 then
+                  c = 123
+                 end-if
+                 if a2 eq b3 then
+                  c = 124
+                 end-if
+                   if a3 eq b3 then
+                  c = 125
+                 end-if
                  b = new Base
                  p = new Pessoa
                  p._prototype = b

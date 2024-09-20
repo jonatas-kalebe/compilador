@@ -16,21 +16,23 @@ public class StatementsParser {
     public static List<MainStatements> processEachLineMainStatement(String body) {
         if (body != null && !body.isEmpty()) {
             List <String> blocosIf = RegexUtil.extractIfs(body);
+            int i=0;
             for (String blocoIf : blocosIf) {
-                body = body.replace(blocoIf, "");
+                body = body.replace(blocoIf, "ifHere");
             }
             String[] lines = body.split("\n");
             List<MainStatements> statements = new ArrayList<>();
             for (String line : lines) {
+                if (line.contains("ifHere")) {
+                    statements.add(processEachLineIfStatement(blocosIf.get(i)));
+                    i++;
+                }
                 if (line.contains("=")) {
                     statements.add(processLineAttribution(line));
                 }
                 else if(line.contains("(")&&!line.contains("main")){
                     statements.add(processMethodCall(line));
                 }
-            }
-            for (String blocoIf : blocosIf) {
-                statements.add(processEachLineIfStatement(blocoIf));
             }
             return statements;
         }
