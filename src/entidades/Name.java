@@ -27,6 +27,7 @@ public class Name implements Arguments {
             case "store" -> store();
             case "call" -> call();
             case "const" -> constante();
+            case "new" -> novo();
             default -> "";
         };
     }
@@ -53,6 +54,10 @@ public class Name implements Arguments {
 
     private String call(){
         return String.format("call %s%n", nome);
+    }
+
+    private String novo(){
+        return String.format("new %s%n", nome);
     }
 
     private String constante(){

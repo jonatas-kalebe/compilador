@@ -167,13 +167,17 @@ public class StatementsParser {
             }
 
         }
-
+        Name valor;
         if (split[1].contains(".")) {
             String[] splitAdd = split[1].split("\\.");
-            Name valor = new Name(splitAdd[1], "get", splitAdd[0]);
+            valor = new Name(splitAdd[1], "get", splitAdd[0]);
             return new Attribution(variavel, valor);
+        } else if (split[1].contains("new")) {
+            valor = new Name(split[1].replace("new", "").trim(), "new");
+            return new Attribution(variavel, valor);
+
         }
-        Name valor;
+
         try {
             Integer.parseInt(split[1].trim());
             valor = new Name(split[1], "const");
