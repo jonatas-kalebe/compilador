@@ -11,11 +11,9 @@ public class MethodHeader {
         this.nome = nome;
     }
 
-    public MethodHeader(String nome, List<Name> parametros) {
+    public MethodHeader(String nome, List<String> parametros) {
         this.nome = nome;
-        this.parametros = parametros.stream()
-                .map(Name::getNome)
-                .collect(Collectors.toList());
+        this.parametros = parametros;
     }
 
     public String compileCode() {

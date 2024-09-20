@@ -1,7 +1,5 @@
 package entidades;
 
-import main.Main;
-
 import java.util.List;
 
 public class Program {
@@ -28,4 +26,7 @@ public class Program {
         return code.toString();
     }
 
+    public void setClassesBlock(List<ClassesBlock> classesBlock) {
+        this.classesBlock = classesBlock;
+    }
 }

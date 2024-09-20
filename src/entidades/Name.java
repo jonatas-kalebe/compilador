@@ -8,13 +8,13 @@ public class Name implements Arguments {
     private String nomeObjeto;
 
     public Name(String nome, String acao) {
-        this.nome = nome;
+        this.nome = nome.trim();
         this.acao = acao;
     }
 
     public Name(String nome, String acao, String nomeObjeto) {
-        this.nome = nome;
-        this.nomeObjeto = nomeObjeto;
+        this.nome = nome.trim();
+        this.nomeObjeto = nomeObjeto.trim();
         this.acao = acao;
     }
 
@@ -23,8 +23,10 @@ public class Name implements Arguments {
         return switch (acao) {
             case "load" -> load();
             case "set" -> set();
+            case "get" -> get();
             case "store" -> store();
             case "call" -> call();
+            case "const" -> constante();
             default -> "";
         };
     }
@@ -38,7 +40,11 @@ public class Name implements Arguments {
     }
 
     private String set(){
-        return String.format("load %s%nset%s%n", nomeObjeto, nome);
+        return String.format("load %s%nset %s%n", nomeObjeto, nome);
+    }
+
+    private String get(){
+        return String.format("load %s%nget %s%n", nomeObjeto, nome);
     }
 
     private String store(){
@@ -47,6 +53,10 @@ public class Name implements Arguments {
 
     private String call(){
         return String.format("call %s%n", nome);
+    }
+
+    private String constante(){
+        return String.format("const %s%n", nome);
     }
 }
 

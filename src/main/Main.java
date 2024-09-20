@@ -1,52 +1,83 @@
 package main;
 
-import entidades.Program;
-import util.Parser;
+import entidades.*;
+import estruturas.MainStatements;
+import util.RegexUtil;
+import util.StatementsParser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        String code = "class Base\n" +
-                " vars id\n" +
-                " method showid()\n" +
-                " vars x\n" +
-                " begin\n" +
-                " self.id = 10\n" +
-                " x = self.id\n" +
-                " io.print(x)\n" +
-                " x = 0\n" +
-                " return x\n" +
-                " end-method\n" +
-                "end-class\n" +
-                "class Pessoa\n" +
-                " vars num\n" +
-                " method calc(x)\n" +
-                " vars y, z\n" +
-                " begin\n" +
-                " z = self.num\n" +
-                " y = x + z\n" +
-                " io.print(y)\n" +
-                " y = new Base\n" +
-                " return y\n" +
-                " end-method\n" +
-                "end-class\n" +
-                "main()\n" +
-                "vars p, b, x\n" +
-                "begin\n" +
-                " b = new Base\n" +
-                " p = new Pessoa\n" +
-                " p._prototype = b\n" +
-                " b.id = 111\n" +
-                " p.num = 123\n" +
-                " p.id = 321\n" +
-                " x = 1024\n" +
-                " p.showid()\n" +
-                " p.calc(x)\n" +
-                "end";
+        String code = """
+                class Base
+                 vars id
+                 method showid(x, y, rerw)
+                 vars x
+                 begin
+                 self.id = 10
+                 x = self.id
+                 return x
+                 end-method
+                end-class
+                main()
+                vars p, b, x
+                begin
+                 b = new Base
+                 p = new Pessoa
+                 p._prototype = b
+                 b.id = 111
+                 p.num = 123
+                 p.id = 321
+                 x = 1024
+                 p.showid()
+                 p.calc(x)
+                end""";
 
-        Parser parser = new Parser(code);
-        Program program = parser.parse();
 
-        String compiledCode = program.compileCode();
-        System.out.println(compiledCode);
+
+        String main = RegexUtil.extractMain(code).get(0);
+
+        List<String> mainVars = RegexUtil.extractVars(main);
+
+        List<MainStatements> mainStatements = StatementsParser.processEachLineMainStatement(main);
+
+        MainBlock mainBlock = new MainBlock(mainStatements,mainVars);
+
+        List<ClassesBlock> classesBlockList = new ArrayList<>();
+
+
+        List<String> classes = RegexUtil.extractClasses(code);
+
+        for (String classe : classes) {
+
+            String className = RegexUtil.findName(classe);
+
+            List<String> vars = RegexUtil.extractVars(classe);
+
+            List<String> methods = RegexUtil.extractMethods(classe);
+            List<MethodDef> metodos = new ArrayList<>();
+
+            for (String method : methods) {
+                String methodName = RegexUtil.findMethodName(method);
+                List<String> methodVars = RegexUtil.extractVars(method);
+                List<String> methodParams=RegexUtil.extractMethodParams(method);
+                String methodBodyString = RegexUtil.extractMethodBody(method);
+                MethodBody methodBody = StatementsParser.processEachLineMethodStatement(methodBodyString);
+                MethodHeader methodHeader=new MethodHeader(methodName,methodParams);
+                metodos.add( new MethodDef(methodBody,methodHeader,methodVars));
+            }
+            ClassesBlock classesBlock=new ClassesBlock(className,vars,metodos);
+            classesBlockList.add(classesBlock);
+        }
+
+        Program program = new Program(mainBlock,classesBlockList);
+
+        String finalCode = program.compileCode();
+
+        System.out.println(finalCode);
+
     }
+    //todo falta new e falta prototype
 }

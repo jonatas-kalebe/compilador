@@ -6,12 +6,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class ClassesBlock {
-    private final Name nome;
+    private final String nome;
     private final List<String> definicoesVariaveis;
     private final List<MethodDef> metodo;
     private final int tipo;
 
-    public ClassesBlock(Name nome, List<String> definicoesVariaveis, List<MethodDef> metodo) {
+    public ClassesBlock(String nome, List<String> definicoesVariaveis, List<MethodDef> metodo) {
         this.nome = nome;
         this.definicoesVariaveis = definicoesVariaveis != null ? definicoesVariaveis : Collections.emptyList();
         this.metodo = metodo != null ? metodo : Collections.emptyList();
@@ -29,7 +29,7 @@ public class ClassesBlock {
 
     public String compileCode() {
         StringBuilder code = new StringBuilder();
-        code.append("class ").append(nome.compileCode());
+        code.append("class ").append(nome).append("\n");
 
         if (tipo == 1 || tipo == 3) {
             code.append(CompilerUtil.compileVariableDefinitions(definicoesVariaveis));
