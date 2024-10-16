@@ -11,55 +11,53 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         String code = """
-                class Base
-                 vars id
-                 method showid()
-                 vars x
-                 begin
-                   self.id = 10
-                   x = self.id
-                   io.print(x)
-                   x = 0
-                   return x
-                 end-method
-                end-class
-                class Pessoa
-                 vars num
-                 method calc(x)
-                 vars y, z
-                 begin
-                   z = self.num
-                   y = x + z
-                   io.print(y)
-                   y = new Base
-                   return y
-                 end-method
-                 method comparisonTest(x)
-                 vars result
-                 begin
-                   if x gt self.num then
-                     io.print(1)
-                   else
-                     io.print(0)
-                   end-if
-                   return result
-                 end-method
-                end-class
-                main()
-                vars p, b, x
-                begin
-                   b = new Base
-                   p = new Pessoa
-                   p._prototype = b
-                   b.id = 111
-                   p.num = 123
-                   p.id = 321
-                   x = 1024
-                   p.showid()
-                   p.calc(x)
-                   p.comparisonTest(x)
-                end
-                """;
+            class Base
+             vars id, value
+             method calculate(x)
+             vars temp
+             begin
+              self.id = x
+              temp = self.value + x
+              if x gt 0 then
+               temp = temp * x
+              else
+               temp = temp - x
+              end-if
+              io.print(temp)
+              return temp
+             end-method
+            end-class
+            
+            class Derived
+             vars data
+             method process(y)
+             vars result
+             begin
+              self.data = y
+              result = self.data + self.id
+              io.print(result)
+              return result
+             end-method
+            end-class
+            
+            main()
+            vars baseObj, derivedObj, num, output
+            begin
+             num = 10
+             baseObj = new Base
+             baseObj.value = 5
+            
+             derivedObj = new Derived
+             derivedObj._prototype = baseObj
+             derivedObj.id = 20
+            
+             output = derivedObj.calculate(num)
+             io.print(output)
+            
+             output = derivedObj.process(num)
+             io.print(output)
+            end
+               """;
 
 
 

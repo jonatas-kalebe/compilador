@@ -17,15 +17,17 @@ public class Comparator {
 
     public static String getComparator(String key) {
         return switch (key) {
-            case "eq" -> comparadores.get("ne");
-            case "ne" -> comparadores.get("eq");
-            case "gt" -> comparadores.get("le");
-            case "ge" -> comparadores.get("lt");
-            case "lt" -> comparadores.get("ge");
-            case "le" -> comparadores.get("gt");
+            case "eq" -> comparadores.get("eq");
+            case "ne" -> comparadores.get("ne");
+            case "gt" -> comparadores.get("gt");
+            case "ge" -> comparadores.get("ge");
+            case "lt" -> comparadores.get("lt");
+            case "le" -> comparadores.get("le");
             default -> null;
         };
     }
+
+
 
     public Map<String, String> getComparators() {
         return comparadores;

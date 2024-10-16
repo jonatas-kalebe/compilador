@@ -31,7 +31,9 @@ public class MethodCall implements IfStatements, BodyStatements, MainStatements,
                 parametrosLoad.append(parametro.compileCode());
             }
         }
-
+        if(objeto.getNome().equals("io")){
+            return parametrosLoad +objeto.compileCode()+metodo.compileCode()+"pop\n";
+        }
         return parametrosLoad +objeto.compileCode()+metodo.compileCode();
     }
 }
