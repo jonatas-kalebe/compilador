@@ -7,9 +7,13 @@ import util.StatementsParser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main {
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
     public static void main(String[] args) {
+
         String code = """
             class Base
              vars id, value
@@ -27,7 +31,6 @@ public class Main {
               return temp
              end-method
             end-class
-            
             class Derived
              vars data
              method process(y)
@@ -39,29 +42,24 @@ public class Main {
               return result
              end-method
             end-class
-            
             main()
             vars baseObj, derivedObj, num, output
             begin
              num = 10
              baseObj = new Base
              baseObj.value = 5
-            
              derivedObj = new Derived
              derivedObj._prototype = baseObj
              derivedObj.id = 20
-            
              output = derivedObj.calculate(num)
              io.print(output)
-            
              output = derivedObj.process(num)
              io.print(output)
-            end
-               """;
+            end""";
 
 
 
-        String main = RegexUtil.extractMain(code).get(0);
+        String main = RegexUtil.extractMain(code).getFirst();
 
         List<String> mainVars = RegexUtil.extractVars(main);
 
@@ -100,8 +98,7 @@ public class Main {
 
         String finalCode = program.compileCode();
 
-        System.out.println(finalCode);
+        LOGGER.log(Level.INFO,finalCode);
 
     }
-    //todo falta falta prototype e io.print
 }
