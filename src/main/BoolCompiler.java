@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main {
+public class BoolCompiler {
     public static void main(String[] args) {
         if (args.length != 2) {
             System.err.println("Uso: java BoolCompiler <arquivo_entrada>.bool <arquivo_saida>.boolc");
