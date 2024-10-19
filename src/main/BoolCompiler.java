@@ -12,10 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BoolCompiler {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length != 2) {
-            System.err.println("Uso: java BoolCompiler <arquivo_entrada>.bool <arquivo_saida>.boolc");
-            System.exit(1);
+            throw new IllegalArgumentException("Uso: java BoolCompiler <arquivo_entrada>.bool <arquivo_saida>.boolc");
         }
 
         String inputFileName = args[0];
@@ -25,9 +24,7 @@ public class BoolCompiler {
         try {
             code = Files.readString(Path.of(inputFileName));
         } catch (IOException e) {
-            System.err.println("Erro ao ler o arquivo de entrada: " + e.getMessage());
-            System.exit(1);
-            return;
+            throw new IOException("Erro ao ler o arquivo de entrada: " + e.getMessage());
         }
 
         String finalCode = compileBoolCode(code);
@@ -35,8 +32,7 @@ public class BoolCompiler {
         try {
             Files.writeString(Path.of(outputFileName), finalCode);
         } catch (IOException e) {
-            System.err.println("Erro ao escrever o arquivo de saída: " + e.getMessage());
-            System.exit(1);
+            throw new IOException("Erro ao escrever o arquivo de saída: " + e.getMessage());
         }
     }
 
