@@ -1,6 +1,5 @@
 package util;
 
-
 import entidades.*;
 import estruturas.BodyStatements;
 import estruturas.IfStatements;
@@ -10,6 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StatementsParser {
+    private static final String CONSTANTE = "const";
+    private static final String CARREGAR_VARIAVEL = "load";
+    private static final String ARMAZENAR_VARIAVEL = "store";
+    private static final String CHAMAR_METODO = "call";
+    private static final String ATRIBUIR_VALOR = "set";
+    private static final String OBTER_VALOR = "get";
+    private static final String NOVO_OBJETO = "new";
+    private static final String RETORNAR = "return";
+    private static final String MARCAR_IF = "ifHere";
+
     private StatementsParser() {
     }
 
@@ -18,12 +27,12 @@ public class StatementsParser {
             List <String> blocosIf = RegexUtil.extractIfs(body);
             int i=0;
             for (String blocoIf : blocosIf) {
-                body = body.replace(blocoIf, "ifHere");
+                body = body.replace(blocoIf, MARCAR_IF);
             }
             String[] lines = body.split("\n");
             List<MainStatements> statements = new ArrayList<>();
             for (String line : lines) {
-                if (line.contains("ifHere")) {
+                if (line.contains(MARCAR_IF)) {
                     statements.add(processEachLineIfStatement(blocosIf.get(i)));
                     i++;
                 }
@@ -44,17 +53,17 @@ public class StatementsParser {
             List<String> blocosIf = RegexUtil.extractIfs(body);
             int i = 0;
             for (String blocoIf : blocosIf) {
-                body = body.replace(blocoIf, "ifHere");
+                body = body.replace(blocoIf, MARCAR_IF);
             }
 
             String[] lines = body.split("\n");
             List<BodyStatements> statements = new ArrayList<>();
             for (String line : lines) {
-                if (line.contains("ifHere")) {
+                if (line.contains(MARCAR_IF)) {
                     statements.add(processEachLineIfStatement(blocosIf.get(i)));
                     i++;
                 }
-                if (line.contains("return")) {
+                if (line.contains(RETORNAR)) {
                     statements.add(processLineReturn(line));
                 }
                 else if (line.contains("=")) {
@@ -84,22 +93,22 @@ public class StatementsParser {
                     String[] split = line.trim().split(" ");
                     comparador = split[2];
                     if(split[1].matches("\\d+")){
-                        variavel1 = new Name(split[1], "const");
+                        variavel1 = new Name(split[1], CONSTANTE);
                     }
                     else{
-                        variavel1 = new Name(split[1], "load");
+                        variavel1 = new Name(split[1], CARREGAR_VARIAVEL);
                     }
                     if (split[3].matches("\\d+")){
-                        variavel2 = new Name(split[3], "const");
+                        variavel2 = new Name(split[3], CONSTANTE);
                     }
                     else {
-                        variavel2 = new Name(split[3], "load");
+                        variavel2 = new Name(split[3], CARREGAR_VARIAVEL);
                     }
                 }
                 else if(line.contains("else")){
                     isElse=true;
                 }
-                else if (line.contains("return")) {
+                else if (line.contains(RETORNAR)) {
                     if (isElse) {
                         statementsElse.add(processLineReturn(line));
                     } else {
@@ -131,18 +140,18 @@ public class StatementsParser {
     private static MethodCall processMethodCall(String line) {
         String[] split = line.split("\\(");
         String[] splitMethod = split[0].split("\\.");
-        Name methodName =new Name( splitMethod[1],"call");
-        Name objectName =new Name( splitMethod[0],"load");
+        Name methodName =new Name( splitMethod[1],CHAMAR_METODO);
+        Name objectName =new Name( splitMethod[0],CARREGAR_VARIAVEL);
         List<Name> names = new ArrayList<>();
         if (split.length > 1) {
             String[] splitParameters = split[1].replace(")", "").split(",");
             for (String parameter : splitParameters) {
                 if (parameter.contains(".")) {
                     String[] splitObject = parameter.split("\\.");
-                    names.add(new Name(splitObject[1], "get", splitObject[0]));
+                    names.add(new Name(splitObject[1], OBTER_VALOR, splitObject[0]));
                 } else {
                     if (!parameter.isEmpty()){
-                        names.add(new Name(parameter, "load"));
+                        names.add(new Name(parameter, CARREGAR_VARIAVEL));
                     }
 
                 }
@@ -152,7 +161,7 @@ public class StatementsParser {
     }
 
     public static Return processLineReturn(String line) {
-        String returnName = line.replace("return", "").trim();
+        String returnName = line.replace(RETORNAR, "").trim();
         return new Return(returnName);
     }
 
@@ -161,10 +170,10 @@ public class StatementsParser {
         Name variavel;
         if (split[0].contains(".")){
             String[] splitObject =split[0].split("\\.");
-            variavel= new Name(splitObject[1], "set",splitObject[0]);
+            variavel= new Name(splitObject[1], ATRIBUIR_VALOR,splitObject[0]);
         }
         else {
-            variavel = new Name(split[0], "store");
+            variavel = new Name(split[0], ARMAZENAR_VARIAVEL);
         }
         String[] operators = {"\\+", "\\-", "\\*", "\\/"};
 
@@ -177,13 +186,13 @@ public class StatementsParser {
                     String splitTemp=splitAdd[i].trim();
                     if (splitTemp.contains(".")) {
                         String[] splitObject =splitTemp.split("\\.");
-                        names[i] = new Name(splitObject[1], "get",splitObject[0]);
+                        names[i] = new Name(splitObject[1], OBTER_VALOR,splitObject[0]);
                     }  else {
                         try {
                             Integer.parseInt(splitTemp);
-                            names[i] = new Name(splitTemp, "const");
+                            names[i] = new Name(splitTemp, CONSTANTE);
                         } catch (NumberFormatException e) {
-                            names[i] = new Name(splitTemp, "load");
+                            names[i] = new Name(splitTemp, CARREGAR_VARIAVEL);
                         }
                     }
                 }
@@ -194,19 +203,19 @@ public class StatementsParser {
         Name valor;
         if (split[1].contains(".")) {
             String[] splitAdd = split[1].split("\\.");
-            valor = new Name(splitAdd[1], "get", splitAdd[0]);
+            valor = new Name(splitAdd[1], OBTER_VALOR, splitAdd[0]);
             return new Attribution(variavel, valor);
-        } else if (split[1].contains("new")) {
-            valor = new Name(split[1].replace("new", "").trim(), "new");
+        } else if (split[1].contains(NOVO_OBJETO)) {
+            valor = new Name(split[1].replace(NOVO_OBJETO, "").trim(), NOVO_OBJETO);
             return new Attribution(variavel, valor);
 
         }
 
         try {
             Integer.parseInt(split[1].trim());
-            valor = new Name(split[1], "const");
+            valor = new Name(split[1], CONSTANTE);
         } catch (NumberFormatException e) {
-            valor = new Name(split[1], "load");
+            valor = new Name(split[1], CARREGAR_VARIAVEL);
         }
 
 

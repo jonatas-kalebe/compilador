@@ -52,8 +52,8 @@ public class RegexUtil {
         for (String line : lines) {
             line = line.replace("vars", "").trim();
             String[] vars = line.split(",");
-            for (String var : vars) {
-                varsList.add(var.trim());
+            for (String variavel : vars) {
+                varsList.add(variavel.trim());
             }
         }
         return varsList;

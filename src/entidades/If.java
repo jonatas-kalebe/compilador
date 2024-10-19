@@ -60,9 +60,9 @@ public class If implements BodyStatements, MainStatements {
             linesElse= elseBlockCode.toString().split("\n").length;
         }
         StringBuilder code = new StringBuilder();
-        code.append(variavel1.compileCode() + variavel2.compileCode() + Comparator.getComparator(comparador) + "if " + lines + "\n" + ifBlockCode);
+        code.append(variavel1.compileCode()).append(variavel2.compileCode()).append(Comparator.getComparator(comparador)).append("if ").append(lines).append("\n").append(ifBlockCode);
         if (isElse) {
-            code.append("else " + linesElse + "\n" + elseBlockCode);
+            code.append("else ").append(linesElse).append("\n").append(elseBlockCode);
         }
         return code.append("end-if\n").toString();
     }

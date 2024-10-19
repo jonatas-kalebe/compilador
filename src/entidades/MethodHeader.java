@@ -1,7 +1,6 @@
 package entidades;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MethodHeader {
     private final String nome;
