@@ -38,6 +38,7 @@ public class ClassesBlock {
         if (tipo == 2 || tipo == 3) {
             metodo.forEach(method -> code.append(method.compileCode()).append("\n"));
         }
+        code.append("end-class\n");
         return code.toString();
     }
 }

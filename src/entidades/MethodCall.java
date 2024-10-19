@@ -11,13 +11,16 @@ public class MethodCall implements IfStatements, BodyStatements, MainStatements,
     private final Name objeto;
     private final Name metodo;
     private List<Name> parametros;
+    private final boolean isAtribuicao;
 
-    public MethodCall(Name objeto, Name metodo) {
+    public MethodCall(Name objeto, Name metodo, boolean isAtribuicao) {
+        this.isAtribuicao = isAtribuicao;
         this.objeto = objeto;
         this.metodo = metodo;
     }
 
-    public MethodCall(Name objeto, Name metodo, List<Name> parametros) {
+    public MethodCall(Name objeto, Name metodo, List<Name> parametros, boolean isAtribuicao) {
+        this.isAtribuicao = isAtribuicao;
         this.objeto = objeto;
         this.metodo = metodo;
         this.parametros = parametros;
@@ -31,7 +34,7 @@ public class MethodCall implements IfStatements, BodyStatements, MainStatements,
                 parametrosLoad.append(parametro.compileCode());
             }
         }
-        if(objeto.getNome().equals("io")){
+        if(!isAtribuicao){
             return parametrosLoad +objeto.compileCode()+metodo.compileCode()+"pop\n";
         }
         return parametrosLoad +objeto.compileCode()+metodo.compileCode();

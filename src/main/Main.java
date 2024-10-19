@@ -15,47 +15,94 @@ public class Main {
     public static void main(String[] args) {
 
         String code = """
-            class Base
-             vars id, value
-             method calculate(x)
-             vars temp
-             begin
-              self.id = x
-              temp = self.value + x
-              if x gt 0 then
-               temp = temp * x
-              else
-               temp = temp - x
-              end-if
-              io.print(temp)
-              return temp
-             end-method
-            end-class
-            class Derived
-             vars data
-             method process(y)
-             vars result
-             begin
-              self.data = y
-              result = self.data + self.id
-              io.print(result)
-              return result
-             end-method
-            end-class
-            main()
-            vars baseObj, derivedObj, num, output
-            begin
-             num = 10
-             baseObj = new Base
-             baseObj.value = 5
-             derivedObj = new Derived
-             derivedObj._prototype = baseObj
-             derivedObj.id = 20
-             output = derivedObj.calculate(num)
-             io.print(output)
-             output = derivedObj.process(num)
-             io.print(output)
-            end""";
+                class Animal
+                 vars name, age
+                
+                 method speak()
+                 vars n
+                 begin
+                 n = self.name
+                 io.print(n)
+                 return 0
+                 end-method
+                
+                 method grow()
+                 vars a, one
+                 begin
+                 a = self.age
+                 one = 1
+                 a = a + one
+                 self.age = a
+                 return self.age
+                 end-method
+                end-class
+                
+                class Dog
+                 vars breed
+                
+                 method bark()
+                 vars n
+                 begin
+                 n = 100
+                 io.print(n)
+                 return 0
+                 end-method
+                end-class
+                
+                class Cat
+                 vars color
+                
+                 method meow()
+                 vars n
+                 begin
+                 n = 200
+                 io.print(n)
+                 return 0
+                 end-method
+                end-class
+                
+                main()
+                vars a, d, c, num, res, temp
+                begin
+                 a = new Animal
+                 d = new Dog
+                 c = new Cat
+                
+                 a.name = 10
+                 a.age = 5
+                
+                 d._prototype = a
+                 c._prototype = a
+                
+                 num = 1
+                
+                 if num eq 1 then
+                  d.breed = 20
+                  d.name = 30
+                  d.age = 3
+                  res = d.grow()
+                  io.print(res)
+                 else
+                  c.color = 40
+                  c.name = 50
+                  c.age = 2
+                  res = c.grow()
+                  io.print(res)
+                 end-if
+                
+                 a = new Animal
+                
+                 num = num + 2
+                 num = num * 3
+                 num = num - 4
+                 num = num / 5
+                
+                 res = d.grow()
+                 io.print(res)
+                
+                 d.speak()
+                end
+            """;
 
 
 

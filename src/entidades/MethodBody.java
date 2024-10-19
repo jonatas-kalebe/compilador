@@ -21,7 +21,7 @@ public class MethodBody {
             }
         }
 
-        code.append("end");
+        code.append("end-method");
 
         return code.toString();
     }

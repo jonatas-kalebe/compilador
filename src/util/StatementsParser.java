@@ -18,6 +18,7 @@ public class StatementsParser {
     private static final String NOVO_OBJETO = "new";
     private static final String RETORNAR = "return";
     private static final String MARCAR_IF = "ifHere";
+    private static final String REGEX_DIGIT = "-?\\d+";
 
     private StatementsParser() {
     }
@@ -42,7 +43,7 @@ public class StatementsParser {
             } else if (line.contains("=")) {
                 statements.add(processLineAttribution(line));
             } else if (line.contains("(") && !line.contains("main")) {
-                statements.add(processMethodCall(line));
+                statements.add(processMethodCall(line,false));
             }
         }
         return statements;
@@ -70,7 +71,7 @@ public class StatementsParser {
             } else if (line.contains("=")) {
                 statements.add(processLineAttribution(line));
             } else if (line.contains("(") && !line.contains("main")) {
-                statements.add(processMethodCall(line));
+                statements.add(processMethodCall(line,false));
             }
         }
         return new MethodBody(statements);
@@ -94,8 +95,8 @@ public class StatementsParser {
             if (line.startsWith("if")) {
                 String[] split = line.split("\\s+");
                 if (split.length >= 4) {
-                    comparador = split[2];
                     variavel1 = parseName(split[1]);
+                    comparador = split[2];
                     variavel2 = parseName(split[3]);
                 }
             } else if (line.equals("else")) {
@@ -119,31 +120,32 @@ public class StatementsParser {
             return processLineReturn(line);
         } else if (line.contains("=")) {
             return processLineAttribution(line);
-        } else if (line.contains("(")) {
-            return processMethodCall(line);
+        } else if (line.contains("(") && !line.contains("main")) {
+            return processMethodCall(line,false);
         } else {
-
-            throw new IllegalArgumentException("linha irreconhecivel: " + line);
+            throw new IllegalArgumentException("Linha irreconhecível: " + line);
         }
     }
 
     private static Name parseName(String token) {
-        if (token.matches("\\d+")) {
+        token = token.trim();
+        if (token.matches(REGEX_DIGIT)) {
             return new Name(token, CONSTANTE);
         } else {
             return new Name(token, CARREGAR_VARIAVEL);
         }
     }
 
-    private static MethodCall processMethodCall(String line) {
+    private static MethodCall processMethodCall(String line, boolean isAtribuicao) {
         String[] split = line.split("\\(");
-        String[] methodParts = split[0].split("\\.");
+        String methodCallPart = split[0].trim();
+        String[] methodParts = methodCallPart.split("\\.");
         if (methodParts.length != 2) {
-            throw new IllegalArgumentException("Invalid method call: " + line);
+            throw new IllegalArgumentException("Chamada de método inválida: " + line);
         }
 
-        Name objectName = new Name(methodParts[0], CARREGAR_VARIAVEL);
-        Name methodName = new Name(methodParts[1], CHAMAR_METODO);
+        Name objectName = new Name(methodParts[0].trim(), CARREGAR_VARIAVEL);
+        Name methodName = new Name(methodParts[1].trim(), CHAMAR_METODO);
         List<Name> parameters = new ArrayList<>();
 
         if (split.length > 1) {
@@ -155,13 +157,16 @@ public class StatementsParser {
                 }
             }
         }
-        return new MethodCall(objectName, methodName, parameters);
+        return new MethodCall(objectName, methodName, parameters,isAtribuicao);
     }
 
     private static Name parseParameter(String param) {
-        if (param.contains(".")) {
+        param = param.trim();
+        if (param.matches(REGEX_DIGIT)) {
+            return new Name(param, CONSTANTE);
+        } else if (param.contains(".")) {
             String[] parts = param.split("\\.");
-            return new Name(parts[1], OBTER_VALOR, parts[0]);
+            return new Name(parts[1].trim(), OBTER_VALOR, parts[0].trim());
         } else {
             return new Name(param, CARREGAR_VARIAVEL);
         }
@@ -169,55 +174,84 @@ public class StatementsParser {
 
     private static Return processLineReturn(String line) {
         String returnValue = line.replace(RETORNAR, "").trim();
-        return new Return(returnValue);
+        if (returnValue.contains(".")) {
+            String[] parts = returnValue.split("\\.");
+            String objectName = parts[0].trim();
+            String attributeName = parts[1].trim();
+
+            Name attributeAccess = new Name(attributeName, OBTER_VALOR, objectName);
+            return new Return(attributeAccess);
+        } else {
+            return new Return(returnValue);
+        }
     }
 
     private static Attribution processLineAttribution(String line) {
         String[] split = line.split("=");
         if (split.length != 2) {
-            throw new IllegalArgumentException("Invalid attribution: " + line);
+            throw new IllegalArgumentException("Atribuição inválida: " + line);
         }
 
-        Name variable = parseVariable(split[0].trim());
-        String expression = split[1].trim();
+        String leftSide = split[0].trim();
+        String rightSide = split[1].trim();
+
+        Name variable = parseVariable(leftSide);
 
         String[] operators = {"\\+", "-", "\\*", "/"};
         for (String operator : operators) {
-            if (expression.matches(".*" + operator + ".*")) {
-                String[] operands = expression.split(operator);
+            if (rightSide.matches(".*" + operator + ".*")) {
+                String[] operands = rightSide.split(operator);
                 if (operands.length != 2) {
-                    throw new IllegalArgumentException("Invalid expression in attribution: " + line);
+                    throw new IllegalArgumentException("Expressão inválida na atribuição: " + line);
                 }
                 Name operand1 = parseExpressionOperand(operands[0].trim());
                 Name operand2 = parseExpressionOperand(operands[1].trim());
-                return new Attribution(variable, operand1, operand2, operator.replace("\\", ""));
+                String opSymbol = operator.replace("\\", "");
+                return new Attribution(variable, operand1, operand2, opSymbol);
             }
         }
 
-        Name value = parseExpressionOperand(expression);
-        return new Attribution(variable, value);
-    }
-
-    private static Name parseVariable(String token) {
-        if (token.contains(".")) {
-            String[] parts = token.split("\\.");
-            return new Name(parts[1], ATRIBUIR_VALOR, parts[0]);
+        if (rightSide.startsWith(NOVO_OBJETO)) {
+            String className = rightSide.substring(NOVO_OBJETO.length()).trim();
+            Name newObject = new Name(className, NOVO_OBJETO);
+            return new Attribution(variable, newObject);
+        } else if (rightSide.contains("(")) {
+            MethodCall methodCall = processMethodCall(rightSide,true);
+            return new Attribution(variable, methodCall);
         } else {
-            return new Name(token, ARMAZENAR_VARIAVEL);
+            Name value = parseExpressionOperand(rightSide);
+            return new Attribution(variable, value);
         }
     }
 
+    private static Name parseVariable(String token) {
+        token = token.trim();
+        return getNameObject(token, ATRIBUIR_VALOR, ARMAZENAR_VARIAVEL);
+    }
+
     private static Name parseExpressionOperand(String operand) {
-        if (operand.contains(".")) {
-            String[] parts = operand.split("\\.");
-            return new Name(parts[1], OBTER_VALOR, parts[0]);
-        } else if (operand.matches("\\d+")) {
+        operand = operand.trim();
+        if (operand.matches(REGEX_DIGIT)) {
             return new Name(operand, CONSTANTE);
         } else if (operand.startsWith(NOVO_OBJETO)) {
-            String objectType = operand.replace(NOVO_OBJETO, "").trim();
-            return new Name(objectType, NOVO_OBJETO);
+            String className = operand.substring(NOVO_OBJETO.length()).trim();
+            return new Name(className, NOVO_OBJETO);
+        } else if (operand.contains("(")) {
+            MethodCall methodCall = processMethodCall(operand,true);
+            return new Name(methodCall.compileCode(), "callMethod");
         } else {
-            return new Name(operand, CARREGAR_VARIAVEL);
+            return getNameObject(operand, OBTER_VALOR, CARREGAR_VARIAVEL);
+        }
+    }
+
+    private static Name getNameObject(String operand, String obterValor, String carregarVariavel) {
+        if (operand.contains(".")) {
+            String[] parts = operand.split("\\.");
+            String objectName = parts[0].trim();
+            String attributeName = parts[1].trim();
+            return new Name(attributeName, obterValor, objectName);
+        } else {
+            return new Name(operand, carregarVariavel);
         }
     }
 }
