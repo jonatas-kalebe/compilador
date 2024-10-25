@@ -23,7 +23,7 @@ public class MethodDef {
     public String compileCode() {
         StringBuilder code = new StringBuilder();
         code.append(header.compileCode());
-        if(definicoesVariaveis != null){
+        if(definicoesVariaveis != null  && !definicoesVariaveis.isEmpty()) {
             code.append(CompilerUtil.compileVariableDefinitions(definicoesVariaveis));
         }
         code.append(body.compileCode());

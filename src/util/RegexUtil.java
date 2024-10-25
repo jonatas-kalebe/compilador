@@ -53,7 +53,10 @@ public class RegexUtil {
             line = line.replace("vars", "").trim();
             String[] vars = line.split(",");
             for (String variavel : vars) {
-                varsList.add(variavel.trim());
+                if (!variavel.trim().isEmpty()){
+                    varsList.add(variavel.trim());
+                }
+
             }
         }
         return varsList;
